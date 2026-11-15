@@ -1,21 +1,26 @@
-import random
-def guessing_agent(low, high, secret):
-    attempts = 0
-    while low <= high:
-        guess = (low + high) // 2
-        attempts += 1
-        print(f"Attempt {attempts}: Agent guesses {guess}")
-        if guess == secret:
-            print(f"Correct! Number found in {attempts} attempts.")
-            return attempts
-        elif guess < secret:
-            print("Feedback: Higher")
-            low = guess + 1
-        else:
-            print("Feedback: Lower")
-            high = guess - 1
-    return -1
-if __name__ == '__main__':
-    low, high = 1, 100
-    secret = random.randint(low, high)
-    guessing_agent(low, high, secret)
+low = 1
+high = 100
+
+print("Think of a number between 1 and 100")
+
+while low <= high:
+    guess = (low + high) // 2
+
+    print("My guess is:", guess)
+    feedback = input("Enter H for Higher, L for Lower, C for Correct: ").upper()
+
+    if feedback == "H":
+        low = guess + 1
+
+    elif feedback == "L":
+        high = guess - 1
+
+    elif feedback == "C":
+        print("Number guessed successfully!")
+        break
+
+    else:
+        print("Invalid input")
+
+if low > high:
+    print("Your feedback is inconsistent!")
