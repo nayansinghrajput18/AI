@@ -1,104 +1,69 @@
-import heapq
+from collections import deque
 
-goal = (1, 2, 3,
-        4, 5, 6,
-        7, 8, 0)
+grid = [
+    ['S', 0, 0, 'X'],
+    [0, 'X', 0, 0],
+    [0, 0, 0, 'X'],
+    ['X', 0, 0, 'G']
+]
 
-def heuristic(state):
-    h = 0
-    for i in range(9):
-        if state[i] != 0 and state[i] != goal[i]:
-            h += 1
-    return h
+rows = len(grid)
+cols = len(grid[0])
 
-def get_neighbors(state):
-    neighbors = []
-    zero = state.index(0)
-    row = zero // 3
-    col = zero % 3
+start = (0, 0)
+goal = (3, 3)
 
-    moves = [
-        (-1, 0),
-        (1, 0),
-        (0, -1),
-        (0, 1)
-    ]
+queue = deque([(start, [start])])
 
-    for dr, dc in moves:
-        new_row = row + dr
-        new_col = col + dc
+visited = set()
+visited.add(start)
 
-        if 0 <= new_row < 3 and 0 <= new_col < 3:
-            new_zero = new_row * 3 + new_col
-            new_state = list(state)
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-            new_state[zero], new_state[new_zero] = \
-                new_state[new_zero], new_state[zero]
+print("Grid Navigation Begins\n")
 
-            neighbors.append(tuple(new_state))
+final_path = None
 
-    return neighbors
+while queue:
 
-def a_star(start):
-    pq = []
-    initial_g = 0
-    initial_h = heuristic(start)
-    initial_f = initial_g + initial_h
+    current, path = queue.popleft()
 
-    print("INITIAL STATE")
-    print("g =", initial_g)
-    print("h =", initial_h)
-    print("f = g + h =", initial_f)
-    print()
+    print("Current Position:", current)
+    print("Visited:", visited)
 
-    heapq.heappush(
-        pq,
-        (initial_f, initial_g, start, [])
-    )
+    if current == goal:
+        final_path = path
+        print("\nGoal Reached!")
+        break
 
-    visited = set()
+    for dr, dc in directions:
 
-    while pq:
-        f, g, state, path = heapq.heappop(pq)
+        nr = current[0] + dr
+        nc = current[1] + dc
 
-        if state in visited:
-            continue
+        if 0 <= nr < rows and 0 <= nc < cols:
 
-        visited.add(state)
+            if grid[nr][nc] == 'X':
+                continue
 
-        if state == goal:
-            return path + [state]
+            if (nr, nc) in visited:
+                continue
 
-        for next_state in get_neighbors(state):
-            if next_state not in visited:
-                new_g = g + 1
-                new_h = heuristic(next_state)
-                new_f = new_g + new_h
+            visited.add((nr, nc))
 
-                print("Next State:", next_state)
-                print("g =", new_g)
-                print("h =", new_h)
-                print("f = g + h =", new_f)
-                print("--------------------")
+            queue.append(((nr, nc), path + [(nr, nc)]))
 
-                heapq.heappush(
-                    pq,
-                    (new_f, new_g, next_state, path + [state])
-                )
+print("\n=====================================")
 
-    return None
+if final_path:
+    print("Path Found:")
+    print(final_path)
+else:
+    print("No path exists.")
 
-start = (1, 2, 3,
-         4, 0, 6,
-         7, 5, 8)
-
-solution = a_star(start)
-
-print("\nSOLUTION PATH")
-print("================")
-
-for state in solution:
-    print(state[0], state[1], state[2])
-    print(state[3], state[4], state[5])
-    print(state[6], state[7], state[8])
-    print()
+print("\nRational Behaviour Analysis")
+print("1. The agent remembers visited cells.")
+print("2. It never revisits explored locations.")
+print("3. It avoids obstacles.")
+print("4. It systematically searches for the goal.")
+print("Hence, it behaves as a Model-Based Intelligent Agent.")
