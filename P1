@@ -1,37 +1,30 @@
-def display_rooms(roomA, roomB, location):
-    print("\n----------------------------")
-    print("Current Environment")
-    print("----------------------------")
-    print("Room A :", roomA)
-    print("Room B :", roomB)
-    print("Vacuum Location :", location)
-    print("----------------------------")
-roomA = input("Enter Room A Status (Clean/Dirty): ").capitalize()
-roomB = input("Enter Room B Status (Clean/Dirty): ").capitalize()
-location = input("Enter Vacuum Location (A/B): ").upper()
-count = 0
-display_rooms(roomA, roomB, location)
-print("\nActions Performed")
-while roomA == "Dirty" or roomB == "Dirty":
-    if location == "A":
-        if roomA == "Dirty":
-            print("Room A is Dirty -> clean")
-            count += 1
-            roomA = "Clean"
+environment = {'A': 'Dirty', 'B': 'Dirty'}
+location = 'A'
+
+while True:
+    print("Current Location:", location)
+    print("Environment:", environment)
+
+    if environment['A'] == 'Clean' and environment['B'] == 'Clean':
+        print("Goal achieved! Both rooms are Clean")
+        break
+
+    if environment[location] == 'Dirty':
+        print("Action: SUCK")
+        environment[location] = 'Clean'
+
+    else:
+        if location == 'A':
+            print("Action: MOVE RIGHT")
+            location = 'B'
         else:
-            print("Room A is Clean -> Move Right")
-            count += 1
-            location = "B"
-    elif location == "B":
-        if roomB == "Dirty":
-            print("Room B is Dirty -> clean")
-            count += 1
-            roomB = "Clean"
-        else:
-            print("Room B is Clean -> Move Left")
-            count += 1
-        location = "A"
-display_rooms(roomA, roomB, location)
-print("Both rooms are clean.")
-print("Action: NO OP (Stop)")
-print("Total Actions Performed:", count)
+            print("Action: MOVE LEFT")
+            location = 'A'
+
+    print("-" * 40)
+
+print("\nRational Behaviour Analysis")
+print("1. Cleans a room immediately if dirty")
+print("2. Moves only when the current room is already clean")
+print("3. Stops after both rooms are clean")
+print("Hence the agent behaves rationally for this environment")
