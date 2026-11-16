@@ -1,55 +1,108 @@
-from collections import deque
 
-grid = [
-    ['S', 0, 0, 0],
-    [1, 1, 0, 1],
-    [0, 0, 0, 0],
-    [0, 1, 1, 'G']
-]
+import networkx as nx
+import matplotlib.pyplot as plt
 
-start = (0, 0)
-goal = (3, 3)
 
-queue = deque([start])
+def water_jug_dfs(capacity1, capacity2, target):
+    visited = set()
+    path = []
 
-visited = {start}
+    def dfs(jug1, jug2):
+        if (jug1, jug2) in visited:
+            return False
 
-parent = {start: None}
+        visited.add((jug1, jug2))
+        path.append((jug1, jug2))
 
-directions = [
-    (-1, 0),  # Up
-    (1, 0),   # Down
-    (0, -1),  # Left
-    (0, 1)    # Right
-]
+        if jug1 == target or jug2 == target:
+            return True
 
-while queue:
-    current = queue.popleft()
+        # Fill Jug 1
+        if dfs(capacity1, jug2):
+            return True
 
-    if current == goal:
-        break
+        # Fill Jug 2
+        if dfs(jug1, capacity2):
+            return True
 
-    for dr, dc in directions:
-        new_row = current[0] + dr
-        new_col = current[1] + dc
+        # Empty Jug 1
+        if dfs(0, jug2):
+            return True
 
-        if 0 <= new_row < len(grid) and 0 <= new_col < len(grid[0]):
-            new_position = (new_row, new_col)
+        # Empty Jug 2
+        if dfs(jug1, 0):
+            return True
 
-            if grid[new_row][new_col] != 1 and new_position not in visited:
-                visited.add(new_position)
-                parent[new_position] = current
-                queue.append(new_position)
+        # Pour Jug 1 into Jug 2
+        transfer = min(jug1, capacity2 - jug2)
+        if dfs(jug1 - transfer, jug2 + transfer):
+            return True
 
-path = []
-if goal in parent:
-    current = goal
-    while current is not None:
-        path.append(current)
-        current = parent[current]
-    path.reverse()
-    print("Shortest Path:")
-    for position in path:
-        print(position)
+        # Pour Jug 2 into Jug 1
+        transfer = min(jug2, capacity1 - jug1)
+        if dfs(jug1 + transfer, jug2 - transfer):
+            return True
+
+        path.pop()
+        return False
+
+    if target < 0 or target > max(capacity1, capacity2):
+        return None
+
+    if dfs(0, 0):
+        return path
+
+    return None
+
+
+# Main Program
+capacity1 = 3
+capacity2 = 5
+target = 4
+
+solution = water_jug_dfs(capacity1, capacity2, target)
+
+if solution:
+    print("Solution Steps:")
+    for step in solution:
+        print(step)
 else:
-    print("No path found")
+    print("No solution found.")
+
+
+# Visualization Function
+def visualize_dfs_solution(solution):
+    G = nx.DiGraph()
+
+    for i in range(len(solution) - 1):
+        G.add_edge(solution[i], solution[i + 1])
+
+    pos = nx.spring_layout(G, seed=42)
+
+    plt.figure(figsize=(8, 6))
+
+    nx.draw(
+        G, pos,
+        with_labels=True,
+        node_color="lightgreen",
+        node_size=1500,
+        font_size=12,
+        font_weight="bold"
+    )
+
+    nx.draw_networkx_edges(
+        G, pos,
+        edgelist=list(G.edges()),
+        edge_color="blue",
+        width=2,
+        arrows=True
+    )
+
+    plt.title("Water Jug Problem - DFS Solution Path")
+    plt.xlabel("Jug 1, Jug 2")
+    plt.show()
+
+
+# Display Graph
+if solution:
+    visualize_dfs_solution(solution)
